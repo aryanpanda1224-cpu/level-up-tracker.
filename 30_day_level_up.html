@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d1b">
+<title>30-Day Level Up</title>
+<style>
+:root{color-scheme:dark;--bg:#080d1b;--panel:#111a2d;--line:#26344f;--text:#f3f6ff;--muted:#9caac4;--cyan:#65e4ff;--green:#75e6a6}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#101d35,var(--bg) 45%);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+main{max-width:760px;margin:auto;padding:20px 14px 40px}.hero{padding:22px 18px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(135deg,#142642,#101729)}
+.eyebrow{color:var(--cyan);font-weight:800;letter-spacing:.12em;font-size:12px}.hero h1{font-size:clamp(27px,6vw,40px);margin:8px 0}.sub{color:var(--muted);line-height:1.5}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.pill{border:1px solid #34516e;border-radius:999px;padding:7px 11px;color:var(--cyan);font-size:13px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:14px}.title{font-size:19px;font-weight:800;margin:0 0 12px}.bar{height:10px;border-radius:99px;background:#26334a;overflow:hidden;margin:10px 0}.fill{height:100%;width:0;background:linear-gradient(90deg,#36bddb,#75e6a6);transition:width .2s}
+.days{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.day{border:1px solid var(--line);background:#0c1424;color:var(--text);border-radius:10px;padding:10px 0;font-weight:700}.day.active{border-color:var(--cyan);background:#15334a}.day.done{box-shadow:inset 0 -3px var(--green)}
+.task{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);line-height:1.35}.task:last-child{border-bottom:0}.task input{width:22px;height:22px;accent-color:#5de2a1;flex-shrink:0;margin:0;cursor:pointer}.task span{flex:1}.task small{display:block;color:var(--muted);margin-top:4px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{padding:12px 8px;border-radius:13px;background:#0b1424;border:1px solid var(--line);text-align:center}.stat strong{display:block;font-size:22px}.stat small{color:var(--muted);font-size:12px}
+button{cursor:pointer;font:inherit}.actions{display:flex;gap:8px;margin-top:12px}.actions button,.btn{border:1px solid #38516e;background:#14243a;color:var(--text);border-radius:12px;padding:11px 14px}.actions button:disabled{opacity:.35;cursor:default}.hint{font-size:12px;color:var(--muted);line-height:1.5}.mission{color:var(--cyan);font-weight:700;line-height:1.45}.foot{color:var(--muted);font-size:12px;text-align:center;margin:18px 0}
+@media(max-width:390px){main{padding:12px 10px 28px}.card{padding:13px}.days{gap:5px}.day{padding:9px 0;font-size:14px}.stats strong{font-size:19px}}
+</style>
+</head>
+<body><main>
+<section class="hero">
+ <div class="eyebrow">YOUR PERSONAL CHALLENGE</div>
+ <h1>30-Day Level Up 🚀</h1>
+ <div class="sub">Studies · Fitness · Skills · Money habits · Confidence</div>
+ <div class="row" style="margin-top:18px"><span id="dateRange" class="sub">30 days of small wins</span><span class="pill">SAVE ON DEVICE</span></div>
+</section>
+<section class="card">
+ <div class="row"><h2 class="title" style="margin:0">Overall progress</h2><strong id="overallPct">0%</strong></div>
+ <div class="bar"><div class="fill" id="overallBar"></div></div>
+ <div class="stats">
+  <div class="stat"><strong id="habitsDone">0/210</strong><small>Habits completed</small></div>
+  <div class="stat"><strong id="goodDays">0</strong><small>Days with 5+ tasks</small></div>
+  <div class="stat"><strong id="perfectDays">0</strong><small>Perfect days</small></div>
+ </div>
+</section>
+<section class="card">
+ <div class="row"><h2 class="title" style="margin:0">Choose a day</h2><span id="dayPct" class="pill">0% today</span></div>
+ <div class="days" id="dayGrid" style="margin-top:13px"></div>
+</section>
+<section class="card">
+ <div class="eyebrow" id="dayLabel">DAY 1 OF 30</div>
+ <h2 class="title" id="missionTitle" style="margin-top:7px">Build your foundation</h2>
+ <p class="mission" id="missionText"></p>
+ <div class="bar"><div class="fill" id="dayBar"></div></div>
+ <div class="row"><span class="sub">Today's checklist</span><strong id="countText">0 of 7 done</strong></div>
+ <div id="tasks"></div>
+ <div class="actions"><button id="prev">← Previous</button><button id="next">Next day →</button><button id="reset">Reset day</button></div>
+ <p class="hint">Progress saves automatically in this browser on this device. Do not clear browser site data if you want to keep it. If you use another browser or phone, progress may not transfer.</p>
+</section>
+<section class="card">
+ <h2 class="title">Your 4 stages</h2>
+ <p><strong>Days 1–7 · Foundation:</strong> build a routine and organize studies.</p>
+ <p><strong>Days 8–14 · Build:</strong> strengthen revision, practicals and money basics.</p>
+ <p><strong>Days 15–21 · Strengthen:</strong> practice useful skills and confidence.</p>
+ <p style="margin-bottom:0"><strong>Days 22–30 · Finish strong:</strong> test yourself, finish pending work and review progress.</p>
+</section>
+<div class="foot">Steady progress beats perfection. If you miss a task, continue tomorrow.</div>
+</main>
+<script>
+const tasks=[
+ ["Study","Complete 2 focused study sessions (25–45 minutes each)."],
+ ["Fitness","Complete your planned home workout or a recovery session."],
+ ["Useful skill","Practice a useful digital or technical skill for 20 minutes."],
+ ["Money basics","Learn about saving, budgeting or investing safely for 10 minutes."],
+ ["Confidence","Practice communication or take one small confidence-building step."],
+ ["Phone discipline","Reduce unnecessary scrolling compared with your usual routine."],
+ ["Sleep","Aim for a consistent bedtime and 8–10 hours of sleep."]
+];
+const missions=[
+["Set your baseline","Write down your current habits and organize your study space."],
+["Build a timetable","Make a realistic routine around college, study and rest."],
+["Revise a weak topic","Choose one difficult maths concept and review it."],
+["Practice problems","Solve 5 coordinate geometry questions at your current level."],
+["Organize practicals","Complete or organize one section of your practical record."],
+["Review week one","Notice what worked and choose one distraction to reduce."],
+["Explain a topic","Summarize one lesson in your own words."],
+["Revise fundamentals","Review key formulas, definitions and examples."],
+["Civil engineering","Learn one beginner concept related to civil engineering."],
+["Speak clearly","Practice speaking in English for five minutes."],
+["Digital skill","Practice spreadsheets, typing, editing or another useful tool."],
+["Money basics","Record sample spending and separate needs from wants."],
+["Review consistency","Check your study routine and screen-time habits."],
+["Recovery day","Take a lighter day, review notes and rest properly."],
+["Explore careers","Research civil engineering roles and skills they require."],
+["Math practice","Solve another short set of maths problems."],
+["Make something","Create a useful revision sheet or small digital project."],
+["Teach a concept","Explain a concept aloud without reading your notes."],
+["Do the priority first","Finish your most important task before entertainment."],
+["Sample budget","Create a simple sample monthly budget."],
+["Week-three review","Identify your strongest improvement and one area to work on."],
+["One-page notes","Create one neat page of revision notes."],
+["Confidence practice","Ask a question or discuss a topic with someone."],
+["Skill practice","Spend 30 focused minutes on your chosen useful skill."],
+["Check recovery","Review energy, fitness consistency and rest."],
+["Self-test","Try a short quiz without looking at notes."],
+["Fix one obstacle","Adjust one habit that has been difficult to maintain."],
+["Finish pending work","Complete one important unfinished study task."],
+["Compare with day one","Review your original notes and see what has changed."],
+["Final review","Celebrate effort and choose the next small goal."]
+];
+const KEY="levelUp30_v1";
+let state={day:1,records:{}};
+try{const old=JSON.parse(localStorage.getItem(KEY)||"null");if(old&&old.records)state=old}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){alert("Your browser could not save data. Please check browser storage settings.")}}
+function rec(d){if(!state.records[d])state.records[d]={checks:Array(7).fill(false)};return state.records[d]}
+function score(d){return rec(d).checks.filter(Boolean).length}
+function render(){
+ const d=state.day, r=rec(d), s=score(d);
+ document.getElementById("dayLabel").textContent=`DAY ${d} OF 30`;
+ document.getElementById("missionTitle").textContent=missions[d-1][0];
+ document.getElementById("missionText").textContent=missions[d-1][1];
+ document.getElementById("dayPct").textContent=Math.round(s/7*100)+"% today";
+ document.getElementById("countText").textContent=`${s} of 7 done`;
+ document.getElementById("dayBar").style.width=(s/7*100)+"%";
+ document.getElementById("tasks").innerHTML="";
+ tasks.forEach((t,i)=>{
+  const label=document.createElement("label");label.className="task";
+  const cb=document.createElement("input");cb.type="checkbox";cb.checked=!!r.checks[i];cb.setAttribute("aria-label",t[0]);
+  cb.addEventListener("change",()=>{r.checks[i]=cb.checked;save();render()});
+  const span=document.createElement("span");span.textContent=t[0];
+  const small=document.createElement("small");small.textContent=t[1];span.appendChild(small);
+  label.append(cb,span);document.getElementById("tasks").appendChild(label);
+ });
+ document.getElementById("prev").disabled=d===1;
+ document.getElementById("next").disabled=d===30;
+ const grid=document.getElementById("dayGrid");grid.innerHTML="";
+ for(let i=1;i<=30;i++){
+  const b=document.createElement("button");b.className="day"+(i===d?" active":"")+(score(i)===7?" done":"");
+  b.textContent=i;b.title=`Day ${i}: ${Math.round(score(i)/7*100)}%`;
+  b.addEventListener("click",()=>{state.day=i;save();render()});grid.appendChild(b)
+ }
+ const total=Array.from({length:30},(_,i)=>score(i+1)).reduce((a,b)=>a+b,0);
+ const good=Array.from({length:30},(_,i)=>score(i+1)).filter(n=>n>=5).length;
+ const perfect=Array.from({length:30},(_,i)=>score(i+1)).filter(n=>n===7).length;
+ document.getElementById("overallPct").textContent=Math.round(total/210*100)+"%";
+ document.getElementById("overallBar").style.width=(total/210*100)+"%";
+ document.getElementById("habitsDone").textContent=total+"/210";
+ document.getElementById("goodDays").textContent=good;
+ document.getElementById("perfectDays").textContent=perfect;
+}
+document.getElementById("prev").addEventListener("click",()=>{state.day=Math.max(1,state.day-1);save();render()});
+document.getElementById("next").addEventListener("click",()=>{state.day=Math.min(30,state.day+1);save();render()});
+document.getElementById("reset").addEventListener("click",()=>{if(confirm("Reset all 7 tasks for this day?")){state.records[state.day]={checks:Array(7).fill(false)};save();render()}});
+document.getElementById("dateRange").textContent="Start any day · 30-day challenge";
+render();
+</script>
+</body></html>
