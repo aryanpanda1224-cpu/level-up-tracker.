@@ -1,2 +1,162 @@
-# level-up-tracker.
- My personal 30-day progress tracker
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Level Up - 30 Day Tracker</title>
+<style>
+body {
+  margin: 0;
+  padding: 20px;
+  background: #080b14;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+}
+.container {
+  max-width: 600px;
+  margin: auto;
+}
+h1 { color: #50e6ff; }
+.subtitle { color: #b7c1d5; }
+.card {
+  background: #141b2b;
+  padding: 15px;
+  margin: 12px 0;
+  border-radius: 12px;
+}
+.task {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #30384a;
+}
+input[type="checkbox"] {
+  width: 21px;
+  height: 21px;
+  accent-color: #50e6ff;
+  flex-shrink: 0;
+}
+progress {
+  width: 100%;
+  height: 18px;
+  accent-color: #50e6ff;
+}
+button, select {
+  background: #202b40;
+  color: white;
+  padding: 10px;
+  border: 1px solid #52627d;
+  border-radius: 8px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>⚡ Level Up Tracker</h1>
+<p class="subtitle">My Personal 30-Day Progress Tracker</p>
+
+<div class="card">
+  <label for="day">Select your day:</label>
+  <select id="day"></select>
+  <h2 id="dayTitle">Day 1</h2>
+  <p id="count">0 of 6 tasks completed</p>
+  <progress id="bar" value="0" max="6"></progress>
+</div>
+
+<div class="card">
+  <h3>Today's Tasks</h3>
+  <div id="tasks"></div>
+</div>
+
+<div class="card">
+  <h3>Overall Progress</h3>
+  <p id="overall">0 of 180 tasks completed</p>
+  <progress id="overallBar" value="0" max="180"></progress>
+  <p id="percent">0% completed</p>
+</div>
+</div>
+
+<script>
+const taskNames = [
+  "Wake up and make my bed",
+  "Study with full focus",
+  "Exercise or do physical activity",
+  "Learn a useful skill",
+  "Limit unnecessary phone use",
+  "Review my day and plan tomorrow"
+];
+
+const storageKey = "levelUpTracker30";
+let saved = {};
+try {
+  saved = JSON.parse(localStorage.getItem(storageKey) || "{}") || {};
+} catch (e) {
+  saved = {};
+}
+
+const daySelect = document.getElementById("day");
+for (let i = 1; i <= 30; i++) {
+  const option = document.createElement("option");
+  option.value = i;
+  option.textContent = "Day " + i;
+  daySelect.appendChild(option);
+}
+
+function save() {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(saved));
+  } catch (e) {}
+}
+
+function update() {
+  const day = Number(daySelect.value);
+  const checks = document.querySelectorAll("#tasks input");
+  const done = [...checks].filter(c => c.checked).length;
+  document.getElementById("dayTitle").textContent = "Day " + day;
+  document.getElementById("count").textContent =
+    done + " of " + taskNames.length + " tasks completed";
+  document.getElementById("bar").value = done;
+
+  const total = Object.values(saved).reduce(
+    (sum, values) => sum + values.filter(Boolean).length, 0
+  );
+  document.getElementById("overall").textContent =
+    total + " of 180 tasks completed";
+  document.getElementById("overallBar").value = total;
+  document.getElementById("percent").textContent =
+    Math.round(total / 180 * 100) + "% completed";
+}
+
+function renderDay() {
+  const day = Number(daySelect.value);
+  const container = document.getElementById("tasks");
+  container.replaceChildren();
+  if (!saved[day]) saved[day] = Array(6).fill(false);
+
+  taskNames.forEach((name, index) => {
+    const label = document.createElement("label");
+    label.className = "task";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = Boolean(saved[day][index]);
+    checkbox.addEventListener("change", () => {
+      saved[day][index] = checkbox.checked;
+      save();
+      update();
+    });
+    const text = document.createElement("span");
+    text.textContent = name;
+    label.append(checkbox, text);
+    container.appendChild(label);
+  });
+  update();
+}
+
+daySelect.addEventListener("change", renderDay);
+renderDay();
+</script>
+</body>
+ </html>
+                                                 
